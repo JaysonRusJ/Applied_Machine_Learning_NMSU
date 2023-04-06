@@ -4,9 +4,7 @@ import sys
 
 from sklearn.model_selection import train_test_split
 
-
-
-def get_walmart_data():
+def get_walmart_data(std, dimen_reduc):
     """
     Import and perform data manipulation on Walmart dataset
     Returns a tuple of the following values:
@@ -17,12 +15,12 @@ def get_walmart_data():
     """
 
     # Import data
-    features = pd.read_csv('../../walmart-recruiting-store-sales-forecasting/features/features.csv')
-    train = pd.read_csv('../../walmart-recruiting-store-sales-forecasting/train/train.csv')
+    features = pd.read_csv('../walmart-recruiting-store-sales-forecasting/features/features.csv')
+    train = pd.read_csv('../walmart-recruiting-store-sales-forecasting/train/train.csv')
     train['Date'] = pd.to_datetime(train['Date'])
-    test = pd.read_csv('../../walmart-recruiting-store-sales-forecasting/test/test.csv')
+    test = pd.read_csv('../walmart-recruiting-store-sales-forecasting/test/test.csv')
     test['Date'] = pd.to_datetime(test['Date'])
-    stores = pd.read_csv('../../walmart-recruiting-store-sales-forecasting/stores.csv')
+    stores = pd.read_csv('../walmart-recruiting-store-sales-forecasting/stores.csv')
 
     # Merge stores w features
     feat_stores = features.merge(stores, how='inner', on = "Store")
@@ -58,15 +56,21 @@ def get_walmart_data():
     train_df = interm_train[train_cols].copy()
     test_df = interm_train[target_col].copy()
 
+    # if (std):
+    # STANDARDIZE
+
+    # if (dimen_reduc:
+    # DIMENSIONALITY REDUCTION
+
     # Split Data
     # NOTE: NOT STANDARDIZED 
     X_train, X_test, y_train, y_test = train_test_split(
         train_df, test_df, test_size=0.3, random_state=1
     )
 
-    return (X_train, X_test, y_train, y_test)
+    return [X_train, X_test, y_train, y_test]
 
-def get_rossmann_data():
+def get_rossmann_data(std, dimen_reduc):
     """
     Import and perform data manipulation on Rossmann dataset
     Returns a tuple of the following values:
@@ -77,12 +81,12 @@ def get_rossmann_data():
     """
 
     # Import data
-    samp = pd.read_csv('../../rossmann-store-sales/sample_submission.csv')
-    train = pd.read_csv('../../rossmann-store-sales/train.csv')
+    samp = pd.read_csv('../rossmann-store-sales/sample_submission.csv')
+    train = pd.read_csv('../rossmann-store-sales/train.csv')
     train['Date'] = pd.to_datetime(train['Date'])
-    test = pd.read_csv('../../rossmann-store-sales/test.csv')
+    test = pd.read_csv('../rossmann-store-sales/test.csv')
     test['Date'] = pd.to_datetime(test['Date'])
-    store = pd.read_csv('../../rossmann-store-sales/store.csv')
+    store = pd.read_csv('../rossmann-store-sales/store.csv')
 
     # Map non-numerical data points
     type_map = {'a':'1', 'b':'2', 'c':'3', 'd':'4'}
@@ -127,6 +131,12 @@ def get_rossmann_data():
     train = train_df[train_cols].copy()
     target = train_df['Sales'].copy()
 
+    # if (std):
+    # STANDARDIZE
+
+    # if (dimen_reduc:
+    # DIMENSIONALITY REDUCTION
+
     X_train, X_test, y_train, y_test = train_test_split(
         train, target, test_size=0.3, random_state=1
     )
@@ -134,4 +144,15 @@ def get_rossmann_data():
     X_train = X_train.drop('Date', axis=1)
     X_test = X_test.drop('Date', axis=1)
 
-    return (X_train, X_test, y_train, y_test)
+    return [X_train, X_test, y_train, y_test]
+
+class data_fetcher:
+
+    def __init__(self,dataset='walmart', std=False, dimen_reduc='None'):
+
+        if (dataset == 'walmart'):
+            self.data = get_walmart_data(std,dimen_reduc)
+
+        elif (dataset == 'rossmann'):
+            self.data = get_rossmann_data(std,dimen_reduc)
+

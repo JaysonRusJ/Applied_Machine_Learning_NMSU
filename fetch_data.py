@@ -26,11 +26,7 @@ def import_data_walmart():
     # Convert Data features to corresponding datatypes
     feat_stores['Date'] = pd.to_datetime(feat_stores['Date'])
     feat_stores['Day'] = feat_stores['Date'].dt.day
-<<<<<<< Updated upstream
-    feat_stores['Week'] = feat_stores['Date'].dt.week
-=======
     feat_stores['Week'] = feat_stores['Date'].dt.isocalendar().week
->>>>>>> Stashed changes
     feat_stores['Month'] = feat_stores['Date'].dt.month
     feat_stores['Year'] = feat_stores['Date'].dt.year
     feat_stores['WeekOfYear'] = (feat_stores.Date.dt.isocalendar().week)*1.0 

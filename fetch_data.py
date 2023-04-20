@@ -223,9 +223,6 @@ class data_fetcher:
         ## Transformation
         if (n_degrees!=1):
 
-<<<<<<< Updated upstream
-            train = transform(train, n_degrees)
-=======
             # Split
             X_train, X_test, y_train, y_test = train_test_split(
                 train, target, test_size=0.3, random_state=1
@@ -236,7 +233,6 @@ class data_fetcher:
             X_train_std, X_test_std = normalize(X_train_tr, X_test_tr)
             
             return[X_train_std, X_test_std, y_train, y_test]
->>>>>>> Stashed changes
 
         ## Exception - no PCA without norm
         if (not norm and pca):

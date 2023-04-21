@@ -64,7 +64,7 @@ def import_data_rossmann():
 
     # Import data
     samp = pd.read_csv('../rossmann-store-sales/sample_submission.csv')
-    train = pd.read_csv('../rossmann-store-sales/train.csv')
+    train = pd.read_csv('../rossmann-store-sales/train.csv', low_memory=False)
     train['Date'] = pd.to_datetime(train['Date'])
     test = pd.read_csv('../rossmann-store-sales/test.csv')
     test['Date'] = pd.to_datetime(test['Date'])

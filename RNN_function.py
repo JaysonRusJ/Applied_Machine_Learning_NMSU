@@ -43,17 +43,19 @@ def run_function(data):
     data = "walmart"
     size = 12
 
+    
+
     # Load data
     if data == "2":
         maxComp = 16   
-
+    
         # Import data
-        samp = pd.read_csv('rossmann_data/sample_submission.csv')
-        train = pd.read_csv('rossmann_data/train.csv', low_memory = False)
+        samp = pd.read_csv('rossmann-store-sales/sample_submission.csv')
+        train = pd.read_csv('rossmann-store-sales/train.csv')
         train['Date'] = pd.to_datetime(train['Date'])
-        test = pd.read_csv('rossmann_data/test.csv')
+        test = pd.read_csv('rossmann-store-sales/test.csv')
         test['Date'] = pd.to_datetime(test['Date'])
-        store = pd.read_csv('rossmann_data/store.csv')
+        store = pd.read_csv('rossmann-store-sales/store.csv')
 
         # Map non-numerical data points
         type_map = {'a':'1', 'b':'2', 'c':'3', 'd':'4'}
@@ -104,6 +106,8 @@ def run_function(data):
         train_len = math.ceil( len(l) * 0.7)
 
         # Run base model
+        dimmension = "base"
+    
         past = 5
         future = 1
         x_train = []
@@ -205,7 +209,9 @@ def run_function(data):
         r2 = 1 - RSS / TSS
         print("TEST R2:", r2)
 
-        # Run Cubic Dimensional Reduction past = 5
+        # Run Cubic Dimensional Reduction 
+        dimmension = "cubic"
+        past = 5
         future = 1
         x_train = []
         y_train = []
@@ -312,6 +318,7 @@ def run_function(data):
         print("TEST R2:", r2)
 
         # Run Quadratic Dimensional Reduction   
+        dimmension = "quadratic"
         past = 5
         future = 1
         x_train = []
@@ -415,6 +422,7 @@ def run_function(data):
         print("TEST R2:", r2)
 
         # Run PCA Dimensional Reduction 
+        dimmension = "pca"
         r2_scores_training = []
         r2_scores_testing = []
         
@@ -535,12 +543,12 @@ def run_function(data):
     else:
         maxComp = 12
         # Import data
-        features = pd.read_csv('walmart_data/features.csv')
-        train = pd.read_csv('walmart_data/train.csv')
+        features = pd.read_csv('walmart-recruiting-store-sales-forecasting/features/features.csv')
+        train = pd.read_csv('walmart-recruiting-store-sales-forecasting/train/train.csv')
         train['Date'] = pd.to_datetime(train['Date'])
-        test = pd.read_csv('walmart_data/test.csv')
+        test = pd.read_csv('walmart-recruiting-store-sales-forecasting/test/test.csv')
         test['Date'] = pd.to_datetime(test['Date'])
-        stores = pd.read_csv('walmart_data/stores.csv')
+        stores = pd.read_csv('walmart-recruiting-store-sales-forecasting/stores.csv')
 
         # Merge stores w features
         feat_stores = features.merge(stores, how='inner', on = "Store")
@@ -584,6 +592,8 @@ def run_function(data):
         train_len = math.ceil( len(l) * 0.7)
 
         # Run base model
+        dimmension = "base"
+        
         past = 5
         future = 1
         x_train = []
@@ -685,7 +695,9 @@ def run_function(data):
         r2 = 1 - RSS / TSS
         print("TEST R2:", r2)
 
-        # Run Cubic Dimensional Reduction past = 5
+        # Run Cubic Dimensional Reduction 
+        dimmension = "cubic"
+        past = 5
         future = 1
         x_train = []
         y_train = []
@@ -791,6 +803,7 @@ def run_function(data):
         print("TEST R2:", r2)
         
         # Run Quadratic Dimensional Reduction   
+        dimmension = "quadratic"
         past = 5
         future = 1
         x_train = []
@@ -897,6 +910,7 @@ def run_function(data):
         print("TEST R2:", r2)
 
         # Run PCA Dimensional Reduction 
+        dimmension = "pca"
         r2_scores_training = []
         r2_scores_testing = []
         

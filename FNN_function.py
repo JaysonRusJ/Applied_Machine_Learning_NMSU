@@ -38,12 +38,10 @@ def run_function(data):
 
     # Load data
     if data == "2":
-        X,y = fetch_data.import_data_rossmann()
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=1)
+        X_train, X_test, y_train, y_test = fetch_data.get_rossmann_data(False, "None")
         maxComp = 16
     else:
-        X, y = fetch_data.import_data_walmart()
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=1)
+        X_train, X_test, y_train, y_test = fetch_data.get_data(False, "None")
         maxComp = 12
         
     # Scale Feature
@@ -53,7 +51,7 @@ def run_function(data):
     X_test = sc.transform(X_test)    
     
     # Run base model
-    dimmension = base
+    dimmension = "base"
     
     # Convert data into numpy arrays
     X_train = np.asarray(X_train).astype(np.float32)
@@ -111,7 +109,7 @@ def run_function(data):
     print("TEST R2:", r2)
     
     # Run Cubic Dimensional Reduction
-    dimmension = cubic
+    dimmension = "cubic"
     
     cubic = PolynomialFeatures(degree = 3)
     X_train = cubic.fit_transform(X_train)
@@ -173,6 +171,7 @@ def run_function(data):
     print("TEST R2:", r2)
     
     # Run Quadratic Dimensional Reduction
+    dimmension = "quadratic"
     quadratic = PolynomialFeatures(degree = 2)
     X_train = quadratic.fit_transform(X_train)
     X_test = quadratic.fit_transform(X_test)
@@ -233,7 +232,8 @@ def run_function(data):
     r2 = 1 - RSS / TSS
     print("TEST R2:", r2)
     
-    # Run PCA Dimensional Reduction  
+    # Run PCA Dimensional Reduction      
+    dimmension = "pca"
     r2_scores_training = []
     r2_scores_testing = []    
     for comp in range(1, maxComp):

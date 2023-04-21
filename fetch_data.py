@@ -13,12 +13,12 @@ def import_data_walmart():
     Returns a clean 'train' and 'target' set
     """
     # Import data
-    features = pd.read_csv('../walmart-recruiting-store-sales-forecasting/features/features.csv')
-    train = pd.read_csv('../walmart-recruiting-store-sales-forecasting/train/train.csv')
+    features = pd.read_csv('walmart_data/features.csv')
+    train = pd.read_csv('walmart_data/train.csv')
     train['Date'] = pd.to_datetime(train['Date'])
-    test = pd.read_csv('../walmart-recruiting-store-sales-forecasting/test/test.csv')
+    test = pd.read_csv('walmart_data/test.csv')
     test['Date'] = pd.to_datetime(test['Date'])
-    stores = pd.read_csv('../walmart-recruiting-store-sales-forecasting/stores.csv')
+    stores = pd.read_csv('walmart_data/stores.csv')
 
     # Merge stores w features
     feat_stores = features.merge(stores, how='inner', on = "Store")
@@ -26,7 +26,7 @@ def import_data_walmart():
     # Convert Data features to corresponding datatypes
     feat_stores['Date'] = pd.to_datetime(feat_stores['Date'])
     feat_stores['Day'] = feat_stores['Date'].dt.day
-    feat_stores['Week'] = feat_stores['Date'].dt.week
+    feat_stores['Week'] = feat_stores['Date'].dt.isocalendar().week
     feat_stores['Month'] = feat_stores['Date'].dt.month
     feat_stores['Year'] = feat_stores['Date'].dt.year
     feat_stores['WeekOfYear'] = (feat_stores.Date.dt.isocalendar().week)*1.0 
@@ -63,12 +63,12 @@ def import_data_rossmann():
     """
 
     # Import data
-    samp = pd.read_csv('../rossmann-store-sales/sample_submission.csv')
-    train = pd.read_csv('../rossmann-store-sales/train.csv')
+    samp = pd.read_csv('rossmann_data/sample_submission.csv')
+    train = pd.read_csv('rossmann_data/train.csv', low_memory = False)
     train['Date'] = pd.to_datetime(train['Date'])
-    test = pd.read_csv('../rossmann-store-sales/test.csv')
+    test = pd.read_csv('rossmann_data/test.csv')
     test['Date'] = pd.to_datetime(test['Date'])
-    store = pd.read_csv('../rossmann-store-sales/store.csv')
+    store = pd.read_csv('rossmann_data/store.csv')
 
     # Map non-numerical data points
     type_map = {'a':'1', 'b':'2', 'c':'3', 'd':'4'}
@@ -219,7 +219,16 @@ class data_fetcher:
         ## Transformation
         if (n_degrees!=1):
 
-            train = transform(train, n_degrees)
+            # Split
+            X_train, X_test, y_train, y_test = train_test_split(
+                train, target, test_size=0.3, random_state=1
+            )
+
+            X_train_tr, X_test_tr = transform(X_train, X_test, n_degrees)
+
+            X_train_std, X_test_std = normalize(X_train_tr, X_test_tr)
+            
+            return[X_train_std, X_test_std, y_train, y_test]
 
         ## Exception - no PCA without norm
         if (not norm and pca):

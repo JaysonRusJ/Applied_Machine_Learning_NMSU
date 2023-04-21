@@ -6,19 +6,28 @@ import RandomForestRegressor.RFR_rossmann as RFR_rossmann
 import RandomForestRegressor.RFR_walmart as RFR_walmart
 import RNN_function as RNN
 import FNN_function as FNN
+import LinearRegression.linear_walmart_reg as lrw
+import LinearRegression.linear_rossmann_reg as lrr
 
 # take in user input for model
 print("Type digit to select model:")
 print("Linear Regression - 1\nRandom Forest Regressor - 2")
-model = input("CNN - 3\nRNN - 4\n")
+model = input("FNN - 3\nRNN - 4\n")
 
 # take in user input for dataset
 print("Type digit to selcet dataset:")
 dataset = input("Walmart - 1\nRossmann - 2\n")
 
+if (dataset != "1" and dataset != "2"):
+    print("Invalid Input")
+    exit(0)
+
 # run linear regression
 if (model == "1"):
-    print("lr")
+    if (dataset == "1"):
+        lrw.linear_reg_walamrt()
+    elif (dataset == "2"):
+        lrr.linear_reg_rossmann()
     
 # run Random Forest Regressor
 elif (model == "2"):

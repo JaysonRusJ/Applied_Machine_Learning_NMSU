@@ -1,5 +1,0 @@
-Robert - Wrote all code under '/3.4_submission/neural_networks' and the corresponding section in the report. Also updated the title, added the Abstract, and changed the section heading of the report to match the requirements. 
-
-Brock - Wrote all code under '/3.4_submission/linear_regression' and the corresponding section in the report. 
-
-Jason - Wrote all code under '3.4_submission/random_forest' and the corresponding section in the report. Also reformated the report to match the requirements of the submission and added the references section. 

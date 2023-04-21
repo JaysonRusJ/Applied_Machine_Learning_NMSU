@@ -109,7 +109,6 @@ def import_data_rossmann():
 
     # Build input and target
     train_cols = train_df.columns.to_list()
-    print(train_cols)
     train_cols.remove('Sales')
 
     train = train_df[train_cols].copy()

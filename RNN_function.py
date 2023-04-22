@@ -50,12 +50,12 @@ def run_function(data):
         maxComp = 16   
     
         # Import data
-        samp = pd.read_csv('rossmann-store-sales/sample_submission.csv')
-        train = pd.read_csv('rossmann-store-sales/train.csv')
+        samp = pd.read_csv('rossmann_data/sample_submission.csv')
+        train = pd.read_csv('rossmann_data/train.csv', low_memory = False)
         train['Date'] = pd.to_datetime(train['Date'])
-        test = pd.read_csv('rossmann-store-sales/test.csv')
+        test = pd.read_csv('rossmann_data/test.csv')
         test['Date'] = pd.to_datetime(test['Date'])
-        store = pd.read_csv('rossmann-store-sales/store.csv')
+        store = pd.read_csv('rossmann_data/store.csv')
 
         # Map non-numerical data points
         type_map = {'a':'1', 'b':'2', 'c':'3', 'd':'4'}
@@ -543,12 +543,12 @@ def run_function(data):
     else:
         maxComp = 12
         # Import data
-        features = pd.read_csv('walmart-recruiting-store-sales-forecasting/features/features.csv')
-        train = pd.read_csv('walmart-recruiting-store-sales-forecasting/train/train.csv')
+        features = pd.read_csv('walmart_data/features.csv')
+        train = pd.read_csv('walmart_data/train.csv')
         train['Date'] = pd.to_datetime(train['Date'])
-        test = pd.read_csv('walmart-recruiting-store-sales-forecasting/test/test.csv')
+        test = pd.read_csv('walmart_data/test.csv')
         test['Date'] = pd.to_datetime(test['Date'])
-        stores = pd.read_csv('walmart-recruiting-store-sales-forecasting/stores.csv')
+        stores = pd.read_csv('walmart_data/stores.csv')
 
         # Merge stores w features
         feat_stores = features.merge(stores, how='inner', on = "Store")
@@ -593,6 +593,9 @@ def run_function(data):
 
         # Run base model
         dimmension = "base"
+        minSale = min(test_df)
+        maxSale = max(test_df)
+
         
         past = 5
         future = 1
@@ -609,17 +612,20 @@ def run_function(data):
             # Loop for each department
             for dep in range(100):
                 store_dep = train_df[train_df['Dept'] == 1]
-                store_dep_sales = store_dep['Weekly_Sales']
-                store_dep = store_dep.drop(['Weekly_Sales'], axis=1)    
-                store_dep = store_dep.drop(['Date'], axis=1)        
+                #store_dep_sales = store_dep['Weekly_Sales']
+                #store_dep = store_dep.drop(['Weekly_Sales'], axis=1)    
+                #store_dep = store_dep.drop(['Date'], axis=1)        
                 
-                store_dep_sales = np.array(store_dep_sales)
+                store_dep_sales = np.array(test_df.values)
                 store_dep = np.array(store_dep)
 
                 for i in range(past, len(store_dep) - past, past ):
+                    #print("i:", i, "\tstore_dep:", len(store_dep), "\tpast", past, "\tshape:", store_dep.shape[1], "\Ttrue:", store_dep_sales[ i ])
+                    #temp = i - past
+                    #print( "start:", temp, "\tend:", i, "\t", store_dep[ i - past:i] )
                     X_train = store_dep[ i - past:i]
                     x_train.append( X_train )
-                    y_train.append( (store_dep_sales[ i ] - minSale) / (maxSale - minSale) )
+                    y_train.append( (test_df.values[ i ] - minSale) / (maxSale - minSale) )
                     
         #create testing data
         # Loop for each store
@@ -629,8 +635,10 @@ def run_function(data):
             # Loop for each department
             for dep in range(100):
                 store_dep = train_df[train_df['Dept'] == 1]
-                store_dep_sales = store_dep['Weekly_Sales']
-                store_dep = store_dep.drop(['Weekly_Sales'], axis=1)       
+                #store_dep_sales = store_dep['Weekly_Sales']
+                #store_dep = store_dep.drop(['Weekly_Sales'], axis=1)         
+                #store_dep = store_dep.drop(['Date'], axis=1)        
+
                 
                 store_dep_sales = np.array(store_dep_sales)
                 store_dep = np.array(store_dep)
@@ -638,7 +646,8 @@ def run_function(data):
                 for i in range(past, len(store_dep) - past, past ):
                     X_test = store_dep[ i - past:i] 
                     x_test.append( X_test )
-                    y_test.append( (store_dep_sales[ i ] - minSale) / (maxSale - minSale) )
+                    y_test.append( (test_df.values[ i ] - minSale) / (maxSale - minSale) )
+
         
         # Convert data into numpy arrays
         X_train = np.asarray(X_train).astype(np.float32)
@@ -707,17 +716,16 @@ def run_function(data):
         cubic = PolynomialFeatures(degree = 3)
         #create training data
         # Loop for each store
-        for st in range(0, train_len):
+        for st in range(0, train_len, 2):
             store = train_df[train_df['Store'] == st]
 
             # Loop for each department
-            for dep in range(100):
+            for dep in range(0, 100, 2):
                 store_dep = train_df[train_df['Dept'] == 1]
-                store_dep_sales = store_dep['Weekly_Sales']
-                store_dep = store_dep.drop(['Weekly_Sales'], axis=1)    
-                store_dep = store_dep.drop(['Date'], axis=1)        
+                #store_dep_sales = store_dep['Weekly_Sales']
+                #store_dep = store_dep.drop(['Weekly_Sales'], axis=1)    
+                #store_dep = store_dep.drop(['Date'], axis=1)        
                 
-                store_dep_sales = np.array(store_dep_sales)
                 store_dep = np.array(store_dep)
 
                 for i in range(past, len(store_dep) - past, past ):
@@ -726,26 +734,28 @@ def run_function(data):
                     #print( "start:", temp, "\tend:", i, "\t", store_dep[ i - past:i] )
                     X_train = cubic.fit_transform( store_dep[ i - past:i] )
                     x_train.append( X_train )
-                    y_train.append( (store_dep_sales[ i ] - minSale) / (maxSale - minSale) )
+                    y_train.append( (test_df.values[ i ] - minSale) / (maxSale - minSale) )
                     
         #create testing data
         # Loop for each store
-        for st in range(train_len, len(l)):
+        for st in range(train_len, len(l), 2):
             store = train_df[train_df['Store'] == st]
 
             # Loop for each department
-            for dep in range(100):
+            for dep in range(0, 100, 2):
                 store_dep = train_df[train_df['Dept'] == 1]
-                store_dep_sales = store_dep['Weekly_Sales']
-                store_dep = store_dep.drop(['Weekly_Sales'], axis=1)       
+                #store_dep_sales = store_dep['Weekly_Sales']
+                #store_dep = store_dep.drop(['Weekly_Sales'], axis=1)    
+                #store_dep = store_dep.drop(['Date'], axis=1)        
+             
                 
-                store_dep_sales = np.array(store_dep_sales)
                 store_dep = np.array(store_dep)
 
                 for i in range(past, len(store_dep) - past, past ):
                     X_test = cubic.fit_transform( store_dep[ i - past:i] )
                     x_test.append( X_test )
-                    y_test.append( (store_dep_sales[ i ] - minSale) / (maxSale - minSale) )
+                    y_test.append( (test_df.values[ i ] - minSale) / (maxSale - minSale) )
+
                     
         
         # Convert data into numpy arrays
@@ -814,17 +824,17 @@ def run_function(data):
         
         #create training data
         # Loop for each store
-        for st in range(0, train_len):
+        for st in range(0, train_len, 2):
             store = train_df[train_df['Store'] == st]
 
             # Loop for each department
-            for dep in range(100):
+            for dep in range(0, 100, 2):
                 store_dep = train_df[train_df['Dept'] == 1]
-                store_dep_sales = store_dep['Weekly_Sales']
-                store_dep = store_dep.drop(['Weekly_Sales'], axis=1)    
-                store_dep = store_dep.drop(['Date'], axis=1)        
+                #store_dep_sales = store_dep['Weekly_Sales']
+                #store_dep = store_dep.drop(['Weekly_Sales'], axis=1)    
+                #store_dep = store_dep.drop(['Date'], axis=1)        
                 
-                store_dep_sales = np.array(store_dep_sales)
+                #store_dep_sales = np.array(store_dep_sales)
                 store_dep = np.array(store_dep)
 
                 for i in range(past, len(store_dep) - past, past ):
@@ -833,26 +843,29 @@ def run_function(data):
                     #print( "start:", temp, "\tend:", i, "\t", store_dep[ i - past:i] )
                     X_train = quadratic.fit_transform( store_dep[ i - past:i] )
                     x_train.append( X_train )
-                    y_train.append( (store_dep_sales[ i ] - minSale) / (maxSale - minSale) )
+                    y_train.append( (test_df.values[ i ] - minSale) / (maxSale - minSale) )
                     
         #create testing data
         # Loop for each store
-        for st in range(train_len, len(l)):
+        for st in range(train_len, len(l), 2):
             store = train_df[train_df['Store'] == st]
 
             # Loop for each department
-            for dep in range(100):
+            for dep in range(0, 100, 2):
                 store_dep = train_df[train_df['Dept'] == 1]
-                store_dep_sales = store_dep['Weekly_Sales']
-                store_dep = store_dep.drop(['Weekly_Sales'], axis=1)       
+                #store_dep_sales = store_dep['Weekly_Sales']
+                #store_dep = store_dep.drop(['Weekly_Sales'], axis=1)    
+                #store_dep = store_dep.drop(['Date'], axis=1)        
+             
                 
-                store_dep_sales = np.array(store_dep_sales)
+                #store_dep_sales = np.array(store_dep_sales)
                 store_dep = np.array(store_dep)
 
                 for i in range(past, len(store_dep) - past, past ):
                     X_test = quadratic.fit_transform( store_dep[ i - past:i] )
                     x_test.append( X_test )
-                    y_test.append( (store_dep_sales[ i ] - minSale) / (maxSale - minSale) )   
+                    y_test.append( (test_df.values[ i ] - minSale) / (maxSale - minSale) )
+ 
             
         # Convert data into numpy arrays
         X_train = np.asarray(X_train).astype(np.float32)
@@ -927,45 +940,36 @@ def run_function(data):
             
             #create training data
             # Loop for each store
-            for st in range(0, train_len):
+            for st in range(0, train_len, 2):
                 store = train_df[train_df['Store'] == st]
 
                 # Loop for each department
-                for dep in range(100):
+                for dep in range(0, 100, 2):
                     store_dep = train_df[train_df['Dept'] == 1]
-                    store_dep_sales = store_dep['Weekly_Sales']
-                    store_dep = store_dep.drop(['Weekly_Sales'], axis=1)    
-                    store_dep = store_dep.drop(['Date'], axis=1)        
-                    
-                    store_dep_sales = np.array(store_dep_sales)
                     store_dep = np.array(store_dep)
 
                     for i in range(past, len(store_dep) - past, past ):
                         #print("i:", i, "\tstore_dep:", len(store_dep), "\tpast", past, "\tshape:", store_dep.shape[1], "\Ttrue:", store_dep_sales[ i ])
                         #temp = i - past
                         #print( "start:", temp, "\tend:", i, "\t", store_dep[ i - past:i] )
-                        X_train = pca.fit_transform( store_dep[ i - past:i] )
-                        x_train.append( X_train )
-                        y_train.append( (store_dep_sales[ i ] - minSale) / (maxSale - minSale) )
+                        #X_train = pca.fit_transform( store_dep[ i - past:i] )
+                        x_train.append( trainPCA[ i - past:i] )
+                        y_train.append( (test_df.values[ i ] - minSale) / (maxSale - minSale) )
                         
             #create testing data
             # Loop for each store
-            for st in range(train_len, len(l)):
+            for st in range(train_len, len(l), 2):
                 store = train_df[train_df['Store'] == st]
 
                 # Loop for each department
-                for dep in range(100):
+                for dep in range(0, 100, 2):
                     store_dep = train_df[train_df['Dept'] == 1]
-                    store_dep_sales = store_dep['Weekly_Sales']
-                    store_dep = store_dep.drop(['Weekly_Sales'], axis=1)       
-                    
-                    store_dep_sales = np.array(store_dep_sales)
                     store_dep = np.array(store_dep)
 
                     for i in range(past, len(store_dep) - past, past ):
-                        X_test = pca.fit_transform( store_dep[ i - past:i] )
-                        x_test.append( X_test )
-                        y_test.append( (store_dep_sales[ i ] - minSale) / (maxSale - minSale) )
+                        x_test.append( trainPCA[ i - past:i] )
+                        y_test.append( (test_df.values[ i ] - minSale) / (maxSale - minSale) )
+
             
             # Create Model
             model = Sequential()
